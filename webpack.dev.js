@@ -23,7 +23,19 @@ module.exports = {
             {
                 test: /\.scss$/,
                 use: [ 'style-loader', 'css-loader', 'sass-loader' ]
-        }
+        },
+          {
+            test: /.(ttf|otf|eot|svg|woff(2)?)(\?[a-z0-9]+)?$/,
+            use: [
+              {
+                loader: 'file-loader',
+                options: {
+                  outputPath: 'fonts/',
+                  name: '[name][hash].[ext]',
+                },
+              },
+            ],
+          }
         ]
     },
     plugins: [
