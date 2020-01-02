@@ -21,7 +21,7 @@ app.use(bodyParser.json());
 app.use(cors());
 
 // Initialize the main project folder
-app.use(express.static('website'));
+app.use(express.static('dist'));
 
 // Spin up the server
 const port = 3000;
