@@ -34,7 +34,7 @@ function getIconClass(icon) {
             newIcon = "cloud-sun-inv";
             break;
         default:
-            newIcon = "";
+            newIcon = "sun";
     }
 
     newIcon = 'icon-' + newIcon;

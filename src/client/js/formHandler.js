@@ -5,7 +5,7 @@ function handleSubmit(event) {
     let formDestination = document.getElementById('destination').value
     let formDateFrom = document.getElementById('datefrom').value
     let formCountry = document.getElementById('country').value
-    
+
     console.log("::: destination :::", formDestination);
     console.log("::: country :::", formCountry);
     console.log("::: datefrom :::", formDateFrom);
@@ -48,6 +48,7 @@ function handleSubmit(event) {
             // weather summary
             document.getElementById('weathersummary').innerHTML = data.summary;
             document.getElementById('weathersummary').className = '';
+            /* eslint-disable-next-line */
             document.getElementById('weathersummary').classList.add(Client.getIconClass(data.icon));
             document.getElementById('destinationimage').src = data.imagelink;
         }

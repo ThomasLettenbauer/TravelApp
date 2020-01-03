@@ -1,6 +1,3 @@
-// Setup empty JS object to act as endpoint for all routes
-projectData = {};
-
 // Express to run server and routes
 const express = require('express');
 
@@ -13,7 +10,6 @@ dotenv.config();
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const request = require('request-promise');
-const expressValidator = require('express-validator');
 const { check, validationResult } = require('express-validator');
 
 
@@ -31,13 +27,12 @@ app.use(express.static('dist'));
 
 // Spin up the server
 const port = 3000;
-const server = app.listen(port, listening);
+app.listen(port, listening);
 
 // Callback to debug
 function listening() {
-    // console.log(server);
     console.log(`running on localhost: ${port}`);
-};
+}
 
 // Post Route - Travel data form / Validation
 app.post('/travel', [
@@ -95,7 +90,6 @@ async function processTravelData(req, res) {
     let imageLink;
     let geonamesSuccess = false;
     let darkskySuccess = false;
-    let pixabaySuccess = false;
 
     // calculate countdown
     let presentDate = new Date();
@@ -126,7 +120,7 @@ async function processTravelData(req, res) {
 
     if (geonamesSuccess) {
         console.log("::: Now get the Dark Sky Data :::", darkskyURL);
-        
+
         await request(darkskyURL, function (err, response, body) {
             if (err) {
                 req.body.error = "Error in call to Dark Sky API";
@@ -148,7 +142,7 @@ async function processTravelData(req, res) {
 
     if (darkskySuccess) {
         console.log("::: Now get the Pixabay image :::", pixabayURL);
-        
+
         await request(pixabayURL, function (err, response, body) {
             if (err) {
                 req.body.error = "Error in call to Pixabay API";
@@ -158,10 +152,9 @@ async function processTravelData(req, res) {
                     req.body.error = "No Image found";
                 } else {
                     imageLink = pixabayData.hits[0].webformatURL;
-                    pixabaySuccess = true;
                 }
             }
-        });        
+        });
     }
 
     // set error status
@@ -186,7 +179,7 @@ async function processTravelData(req, res) {
 
     return res.send(travelData);
 
-};
+}
 
 
 
