@@ -39,6 +39,7 @@ function handleSubmit(event) {
         console.log("::: data valid :::")
         document.getElementById('error').classList.add("pseudo");
             document.getElementById('error').innerHTML = "dataValid";
+            document.getElementById('daysleft').innerHTML = data.daysleft;
         }
     
     // function for invalid form data - show the errors

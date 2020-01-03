@@ -79,6 +79,11 @@ app.post('/travel', [
 // Process travel data - Validate Input, call APIs, return weather data, image link, errors
 function processTravelData(req, res) {
 
+    // calculate countdown
+    let presentDate = new Date(); 
+    let travelDate = new Date(req.body.datefrom)
+    let countDownDays = Math.floor((travelDate.getTime() - presentDate.getTime()) /  (1000 * 3600 * 24)) + 1;  
+
     // get location from Geonames API
 
     // get weather data from Dark Sky API
@@ -88,6 +93,7 @@ function processTravelData(req, res) {
     let travelData = {
         destination: req.body.destination,
         datefrom: req.body.datefrom,
+        daysleft: "Your Trip to " + req.body.destination + " starts in " + countDownDays + " days",
         status: req.body.status,
         error: req.body.error
     }
