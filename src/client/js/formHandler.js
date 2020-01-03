@@ -44,6 +44,12 @@ function handleSubmit(event) {
         document.getElementById('error').classList.add("pseudo");
             document.getElementById('error').innerHTML = "";
             document.getElementById('daysleft').innerHTML = data.daysleft;
+            
+            // weather summary
+            document.getElementById('weathersummary').innerHTML = data.summary;
+            document.getElementById('weathersummary').className = '';
+            document.getElementById('weathersummary').classList.add(Client.getIconClass(data.icon));
+            document.getElementById('destinationimage').src = data.imagelink;
         }
     
     // function for invalid form data - show the errors
@@ -51,6 +57,9 @@ function handleSubmit(event) {
         console.log("::: data not valid :::")
         document.getElementById('error').classList.remove("pseudo");
         document.getElementById('error').innerHTML = data.error;
+        document.getElementById('weathersummary').className = '';
+        document.getElementById('weathersummary').innerHTML = '';
+        document.getElementById('destinationimage').src = '';
     }
 }    
 

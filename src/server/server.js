@@ -84,42 +84,36 @@ app.post('/travel', [
 
 })
 
-// Geonames API
-
-
 // Process travel data - Validate Input, call APIs, return weather data, image link, errors
 async function processTravelData(req, res) {
 
     // variables
     let longitude;
     let latitude;
+    let weatherSummary;
+    let weatherIcon;
+    let imageLink;
     let geonamesSuccess = false;
+    let darkskySuccess = false;
+    let pixabaySuccess = false;
 
     // calculate countdown
     let presentDate = new Date();
     let travelDate = new Date(req.body.datefrom)
     let countDownDays = Math.floor((travelDate.getTime() - presentDate.getTime()) / (1000 * 3600 * 24)) + 1;
 
-    // get location from Geonames API
+    // get location from Geonames API and fetch first entry
     // Username in process.env.GEONAMES_USERNAME
     let geonamesURL = 'http://api.geonames.org/postalCodeSearchJSON?placename_startsWith=' + req.body.destination + '&countryCode=' + req.body.country + '&maxRows=1&username=' + process.env.GEONAMES_USERNAME
 
     await request(geonamesURL, function (err, response, body) {
-        if(err){
+        if (err) {
             req.body.error = "Error in call to Geonames API";
         } else {
-            console.log("___BODY___")
-            console.log(body)
-
             let geonamesData = JSON.parse(body);
-            if ( geonamesData.postalCodes[0] == undefined ) {
-                req.body.error = "Location of destination not found, try again with different destination";
-
-                console.log("___INSIDE___")
-                console.log(req.body)
-
+            if (geonamesData.postalCodes[0] == undefined) {
+                req.body.error = "Location of destination not found, try again with different destination/country";
             } else {
-                console.log("LOCATION found!!!");
                 longitude = geonamesData.postalCodes[0].lng;
                 latitude = geonamesData.postalCodes[0].lat;
                 geonamesSuccess = true;
@@ -128,15 +122,50 @@ async function processTravelData(req, res) {
     });
 
     // get weather data from Dark Sky API
-    if ( geonamesSuccess ) {
-        console.log("::: Now get the Dark Sky Data :::");
+    let darkskyURL = 'https://api.darksky.net/forecast/' + process.env.DARKSKY_API_KEY + '/' + latitude + ',' + longitude + ',' + req.body.datefrom + 'T00:00:00?exclude=currently,flags,hourly'
+
+    if (geonamesSuccess) {
+        console.log("::: Now get the Dark Sky Data :::", darkskyURL);
+        
+        await request(darkskyURL, function (err, response, body) {
+            if (err) {
+                req.body.error = "Error in call to Dark Sky API";
+            } else {
+                let darkskyData = JSON.parse(body);
+                if (darkskyData.daily == undefined) {
+                    req.body.error = "Weather data point daily not found - API error";
+                } else {
+                    weatherSummary = darkskyData.daily.data[0].summary;
+                    weatherIcon = darkskyData.daily.data[0].icon;
+                    darkskySuccess = true;
+                }
+            }
+        });
     }
 
-
     // get image link from Pixabay API
+    let pixabayURL = 'https://pixabay.com/api/?key=' + process.env.PIXABAY_API_KEY + '&q=' + req.body.destination + ' &image_type=photo'
+
+    if (darkskySuccess) {
+        console.log("::: Now get the Pixabay image :::", pixabayURL);
+        
+        await request(pixabayURL, function (err, response, body) {
+            if (err) {
+                req.body.error = "Error in call to Pixabay API";
+            } else {
+                let pixabayData = JSON.parse(body);
+                if (pixabayData.hits[0] == undefined) {
+                    req.body.error = "No Image found";
+                } else {
+                    imageLink = pixabayData.hits[0].webformatURL;
+                    pixabaySuccess = true;
+                }
+            }
+        });        
+    }
 
     // set error status
-    if ( req.body.error != "" ) {
+    if (req.body.error != "") {
         req.body.status = 'ERROR';
     }
 
@@ -145,16 +174,20 @@ async function processTravelData(req, res) {
         country: req.body.country,
         datefrom: req.body.datefrom,
         daysleft: "Your Trip to " + req.body.destination + " starts in " + countDownDays + " days",
+        summary: weatherSummary,
+        icon: weatherIcon,
+        imagelink: imageLink,
         status: req.body.status,
         error: req.body.error
     }
 
-    console.log('POST')
+    console.log('::: POST Data :::')
     console.log(travelData)
 
     return res.send(travelData);
 
 };
+
 
 
 
