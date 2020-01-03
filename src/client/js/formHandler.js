@@ -4,8 +4,10 @@ function handleSubmit(event) {
     // check what text was put into the form field
     let formDestination = document.getElementById('destination').value
     let formDateFrom = document.getElementById('datefrom').value
+    let formCountry = document.getElementById('country').value
     
     console.log("::: destination :::", formDestination);
+    console.log("::: country :::", formCountry);
     console.log("::: datefrom :::", formDateFrom);
 
     // async function to post form data to backend
@@ -21,7 +23,9 @@ function handleSubmit(event) {
       }
 
       // check the entered ISBN, if successful go ahead
-      postFormData('http://localhost:3000/travel', {destination: formDestination, datefrom: formDateFrom})
+      postFormData('http://localhost:3000/travel', {destination: formDestination, 
+                                                    country: formCountry, 
+                                                    datefrom: formDateFrom})
       .then((data) => {
         console.log('DATA')
         console.log(data); // JSON data parsed by `response.json()` call
@@ -38,7 +42,7 @@ function handleSubmit(event) {
     function dataValid (data = {}) {
         console.log("::: data valid :::")
         document.getElementById('error').classList.add("pseudo");
-            document.getElementById('error').innerHTML = "dataValid";
+            document.getElementById('error').innerHTML = "";
             document.getElementById('daysleft').innerHTML = data.daysleft;
         }
     
