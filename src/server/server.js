@@ -8,8 +8,10 @@ const express = require('express');
 const app = express();
 
 /* Dependencies */
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
 const cors = require('cors');
+const expressValidator = require('express-validator');
+const { check, validationResult } = require('express-validator');
 
 /* Middleware*/
 
@@ -33,33 +35,67 @@ function listening() {
     console.log(`running on localhost: ${port}`);
 };
 
-// Initialize all route with a callback function
-app.get('/all', sendData);
+// Post Route - Travel data form / Validation
+app.post('/travel', [
+    check('destination').not().isEmpty(),
+    check('datefrom').not().isEmpty()
+], (req, res) => {
 
-// Callback function to complete GET '/all'
-function sendData(request, response) {
-    
-    console.log('GET')
-    console.log(projectData)
+    const errors = validationResult(req)
 
-    response.send(projectData);
-};
+    if (!errors.isEmpty()) {
 
-// Post Route - Weather data
-app.post('/addWeatherData', addWeatherData);
+        req.body.status = "ERROR"
+        req.body.error = ""
 
-function addWeatherData(req, res) {
+        console.log('___ERRORS___')
 
-    newEntry = {
-        temperature: req.body.temperature,
-        date: req.body.date,
-        userResponse: req.body.userResponse
+        errors.array().forEach(function (obj) {
+
+            if (req.body.error != '') {
+                req.body.error += ', '
+            }
+
+            switch (obj.param) {
+                case 'destination':
+                    req.body.error += 'Destination is empty';
+                    break;
+                case 'datefrom':
+                    req.body.error += 'Departing date is empty';
+                    break;
+            }
+
+        });
+
+    } else {
+        req.body.status = "SUCCESS"
+        req.body.error = ""
     }
 
-    projectData = newEntry;
+    processTravelData(req, res)
+
+})
+
+// Process travel data - Validate Input, call APIs, return weather data, image link, errors
+function processTravelData(req, res) {
+
+    // get location from Geonames API
+
+    // get weather data from Dark Sky API
+
+    // get image link from Pixabay API
+
+    let travelData = {
+        destination: req.body.destination,
+        datefrom: req.body.datefrom,
+        status: req.body.status,
+        error: req.body.error
+    }
 
     console.log('POST')
-    console.log(projectData)
+    console.log(travelData)
+
+    return res.send(travelData);
 
 };
 
